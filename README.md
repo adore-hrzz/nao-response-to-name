@@ -35,6 +35,7 @@ To build/cross-compile modules, type:
 This will produce two shared object libraries:
  * liblogger.so
  * libinterface.so
+
 which can be found in corresponding subfolder in the build folder (i.e. *build-atom-toolchain/sdk/lib/*)
 
 ## 3.3 Building remote modules
