@@ -246,11 +246,11 @@ Logger::~Logger() {
 }
 
 void Logger::init() {
-    // This method override ALModule::init
+    // This method overrides ALModule::init
     try {
-        // create object
+        // Create object
         impl = boost::shared_ptr<Impl>(new Impl(*this));
-        // initialize ALModule
+        // Initialize ALModule
         AL::ALModule::init();
     }
     catch (const AL::ALError& e) {
