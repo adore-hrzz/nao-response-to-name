@@ -54,4 +54,9 @@ By running:
 two executables will be created in the build folder (i.e. *build-remote-toolchain/sdk/bin*).
 
 # 4.0 Deploying local modules on the robot
-When modules are cross-compiled, shared object libraries need to be transfered to the robot (using either scp command, FileZilla or some other method). NAOqi modules are started upon boot, so we need to inform the NAOqi that there are additional modules to be run. This is achieved by adding absolute path to the modules (*.so* files) in the *autoload.ini* file, which is located in */home/nao/naoqi/preferences/* folder of the robot's filesystem. The path to *.so* files of local modules must be entered between *[user]* and *[python]* tag. 
+When modules are cross-compiled, shared object libraries need to be transfered to the robot (using either scp command, FileZilla or some other method). NAOqi modules are started upon boot, so we need to inform the NAOqi that there are additional modules to be run. This is achieved by adding absolute path to the modules (*.so* files) in the *autoload.ini* file, which is located in */home/nao/naoqi/preferences/* folder of the robot's filesystem. The path to *.so* files of local modules must be entered between *[user]* and *[python]* tag.
+
+# 5.0 Working with robot
+Once modules are transferred to the robot's computer, and paths to the shared libraries are added to *autoload.ini* file, modules should be automatically started by the NAOqi upon startup.
+
+To start the session with the child, front tactile sensor needs to be touched. Modules will automatically open the log file in the following folder: */home/nao/naoqi/modules/*. Name of the log file is timestamped in yyyymmdd_hhmm format. Log file can be copied using scp, FileZilla or other similar program. After one session ends, new one can be started by touching the front tactile sensor.
