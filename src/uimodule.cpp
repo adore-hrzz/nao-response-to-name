@@ -26,6 +26,10 @@ struct Interface::Impl {
       * Proxy to ALAudioPlayer for sound reproduction
       */
     boost::shared_ptr<AL::ALAudioPlayerProxy> playerProxy;
+    /**
+      * Proxy to ALLeds module
+      */
+    boost::shared_ptr<AL::ALLedsProxy> ledProxy;
 
     /**
       * Module object
@@ -45,6 +49,7 @@ struct Interface::Impl {
         try {
             memoryProxy = boost::shared_ptr<AL::ALMemoryProxy>(new AL::ALMemoryProxy(mod.getParentBroker()));
             playerProxy = boost::shared_ptr<AL::ALAudioPlayerProxy>(new AL::ALAudioPlayerProxy(mod.getParentBroker()));
+            ledProxy = boost::shared_ptr<AL::ALLedsProxy>(new AL::ALLedsProxy(mod.getParentBroker()));
         }
         catch (const AL::ALError& e) {
             qiLogError("Interface") << "Error creating proxies" << e.toString() << std::endl;
@@ -103,6 +108,8 @@ void Interface::onTactilTouched() {
     catch (const AL::ALError& e) {
         qiLogError("Interface") << "Error subscribing to events" << e.toString() << std::endl;
     }
+    // Signal the start of the session by changing eye color (unblocking call)
+    impl->ledProxy->post.fadeRGB("FaceLeds", 0x00FF00, 1.5);
     // Raise event that the session should start
     impl->memoryProxy->raiseEvent("StartSession", AL::ALValue(1));
 }
@@ -138,7 +145,8 @@ void Interface::endSession() {
     AL::ALCriticalSection section(impl->fCallbackMutex);
     // Unsubscribe
     impl->memoryProxy->unsubscribeToEvent("EndSession", "Interface");
-
+    // Signal the end of the session by changing eye color (unblocking call)
+    impl->ledProxy->post.fadeRGB("FaceLeds", 0x0000FF, 1.5);
     // Reset subscriptions
     try {
         impl->memoryProxy->unsubscribeToEvent("CallChild", "Interface");

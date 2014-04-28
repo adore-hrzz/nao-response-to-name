@@ -184,7 +184,7 @@ struct Logger::Impl {
                 // Check if five seconds have past from last call or last face appearance
                 if( sinceLastFace >= 5000 && sinceLastCall >= 5000){
                     // For first three iterations
-                    if( iteration < 3 ) {
+                    if( iteration < 5 ) {
                         // Log that the call should have started - CS = call started
                         log("CS", iteration+1);
                         // Reset face counter
@@ -195,9 +195,9 @@ struct Logger::Impl {
                         lastCall = boost::get_system_time();
                     }
                     // Fourth iteration (iterations start from 0)
-                    else if( iteration == 3 ) {
+                    else if( iteration < 7 ) {
                         // Log that the call using special phrase started - PS = phrase started
-                        log("PS", iteration);
+                        log("PS", iteration-4);
                         // Reset face counter
                         faceCount = 0;
                         // Raise CallChild event with value 2 meaingn "Use special phrase"
@@ -205,7 +205,7 @@ struct Logger::Impl {
                         // Update the time of the last call
                         lastCall = boost::get_system_time();
                     }
-                    // Child did not respond after the last call, end session
+                    // Child did not respond at all, end session
                     else {
                         // Log "EndSession" event with value -1 meaning child did not respond
                         log("SE", -1);
@@ -242,7 +242,7 @@ Logger::Logger(boost::shared_ptr<AL::ALBroker> pBroker, const std::string& pName
 }
 
 Logger::~Logger() {
-
+    //Cleanup code
 }
 
 void Logger::init() {

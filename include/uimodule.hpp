@@ -7,6 +7,7 @@
 
 #include <alproxies/almemoryproxy.h>
 #include <alproxies/alaudioplayerproxy.h>
+#include <alproxies/alledsproxy.h>
 #include <althread/almutex.h>
 
 namespace AL
