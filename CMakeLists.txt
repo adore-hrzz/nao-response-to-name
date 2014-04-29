@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(ResponseToName)
+project(nao-response-to-name)
 find_package(qibuild)
 
 include_directories(include)

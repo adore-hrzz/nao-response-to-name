@@ -183,7 +183,7 @@ struct Logger::Impl {
 
                 // Check if five seconds have past from last call or last face appearance
                 if( sinceLastFace >= 5000 && sinceLastCall >= 5000){
-                    // For first three iterations
+                    // For first five iterations
                     if( iteration < 5 ) {
                         // Log that the call should have started - CS = call started
                         log("CS", iteration+1);
@@ -194,13 +194,13 @@ struct Logger::Impl {
                         // Update the time of the last call
                         lastCall = boost::get_system_time();
                     }
-                    // Fourth iteration (iterations start from 0)
+                    // Sixth and seventh iteration
                     else if( iteration < 7 ) {
                         // Log that the call using special phrase started - PS = phrase started
                         log("PS", iteration-4);
                         // Reset face counter
                         faceCount = 0;
-                        // Raise CallChild event with value 2 meaingn "Use special phrase"
+                        // Raise CallChild event with value 2 meaning "Use special phrase"
                         memoryProxy->raiseEvent("CallChild", AL::ALValue(2));
                         // Update the time of the last call
                         lastCall = boost::get_system_time();
