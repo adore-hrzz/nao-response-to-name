@@ -24,6 +24,11 @@ struct Logger::Impl {
     boost::shared_ptr<AL::ALMemoryProxy> memoryProxy;
 
     /**
+      * Proxy to sound classification module
+      */
+
+    boost::shared_ptr<AL::ALProxy> classificationProxy;
+    /**
       * Module object
       */
     Logger &module;
@@ -66,9 +71,10 @@ struct Logger::Impl {
       * Struct constructor, initializes module instance and callback mutex
       */
     Impl(Logger &mod) : module(mod), fCallbackMutex(AL::ALMutex::createALMutex()) {
-        // Create proxy to ALMemory
+        // Create proxy to ALMemory and sound classification module
         try {
             memoryProxy = boost::shared_ptr<AL::ALMemoryProxy>(new AL::ALMemoryProxy(mod.getParentBroker()));
+            classificationProxy = boost::shared_ptr<AL::ALProxy>(new AL::ALProxy(mod.getParentBroker(), "KlasifikacijaGovora"));
         }
         catch (const AL::ALError& e) {
             qiLogError("Logger") << "Error creating proxy to ALMemory" << e.toString() << std::endl;
@@ -118,11 +124,13 @@ struct Logger::Impl {
         iteration = 0;
         faceCount = 0;
         childCount++;
-        // Session is starting, subscribe to external events
+        // Session is starting, subscribe to external events and start sound classification
         try {
             memoryProxy->subscribeToEvent("FaceDetected", "Logger", "onFaceDetected");
             memoryProxy->subscribeToEvent("ChildCalled", "Logger", "onChildCalled");
             memoryProxy->subscribeToEvent("EndSession", "Logger", "onStopLogger");
+            memoryProxy->subscribeToEvent("KlasifikacijaGovoraEvent", "Logger", "onSoundClassified");
+            classificationProxy->callVoid("pocniKlasifikaciju");
         }
         catch (const AL::ALError& e) {
             qiLogError("Logger") << "Error subscribing to events" << e.toString() << std::endl;
@@ -183,6 +191,8 @@ struct Logger::Impl {
 
                 // Check if five seconds have past from last call or last face appearance
                 if( sinceLastFace >= 5000 && sinceLastCall >= 5000){
+                    // robot will call the child, stop sound classification
+                    classificationProxy->callVoid("prekiniKlasifikaciju");
                     // For first five iterations
                     if( iteration < 5 ) {
                         // Log that the call should have started - CS = call started
@@ -239,6 +249,9 @@ Logger::Logger(boost::shared_ptr<AL::ALBroker> pBroker, const std::string& pName
 
     functionName("onChildCalled", getName(), "Callback for ChildCalled event");
     BIND_METHOD(Logger::onChildCalled);
+
+    functionName("onSoundClassified", getName(), "Callback for ChildCalled event");
+    BIND_METHOD(Logger::onSoundClassified);
 }
 
 Logger::~Logger() {
@@ -306,10 +319,11 @@ void Logger::onStopLogger(const std::string &key, const AL::ALValue &value, cons
     // Wait for thread to exit
     impl->t->join();
 
-    // Event subscription management
+    // Event subscription management, stop sound classification
     try {
         impl->memoryProxy->unsubscribeToEvent("FaceDetected", "Logger");
         impl->memoryProxy->subscribeToEvent("StartSession", "Logger", "onStartLogger");
+        impl->classificationProxy->callVoid("prekiniKlasifikaciju");
     }
     catch (const AL::ALError& e) {
         qiLogError("Logger") << "Error managing events" << e.toString() << std::endl;
@@ -333,6 +347,20 @@ void Logger::onChildCalled(const std::string &key, const AL::ALValue &value, con
     impl->iteration++;
     // Log that the Interface module has ended the call
     impl->log("CE", (int)value);
+    // Robot has finished making sounds, restart the sound classification module
+    impl->classificationProxy->callVoid("pocniKlasifikaciju");
     // Subscribe back to the same event
     impl->memoryProxy->subscribeToEvent("ChildCalled", "Logger", "onChildCalled");
+}
+
+void Logger::onSoundClassified(const std::string &key, const AL::ALValue &value, const AL::ALValue &msg) {
+    // Thread safety of the callback
+    AL::ALCriticalSection section(impl->fCallbackMutex);
+    // Unsubscription
+    impl->memoryProxy->unsubscribeToEvent("KlasifikacijaGovoraEvent", "Logger");
+    // Log that the sound classification module has detected sounds
+    // TODO: find out how to read the data from AL::ALValue
+    // impl->log("SC", value);
+    // Subscribe back to the same event
+    impl->memoryProxy->subscribeToEvent("KlasifikacijaGovoraEvent", "Logger", "onSoundClassified");
 }
