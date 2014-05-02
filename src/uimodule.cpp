@@ -125,13 +125,13 @@ void Interface::callChild(const std::string &key, const AL::ALValue &value, cons
         // If event is raised with value 1, call child by name
         qiLogVerbose("Interface") << "Calling with name\n";
         // TODO: enable the player by uncommenting following line
-        impl->playerProxy->playFile("/home/nao/naoqi/sounds/name.wav");
+        impl->playerProxy->playFile("/home/nao/naoqi/modules/sounds/name.wav");
     }
     else if ( (int)value == 2 ) {
         // Event is raised with value 2, use special phrase
         qiLogVerbose("Interface") << "Calling with special phrase\n";
         // TODO: enable the player by uncommenting following line
-        impl->playerProxy->playFile("(home/nao/naoqi/sounds/phrase.wav");
+        impl->playerProxy->playFile("/home/nao/naoqi/modules/sounds/phrase.wav");
     }
     // Notify the Logger module that child was called
     impl->memoryProxy->raiseEvent("ChildCalled", value);

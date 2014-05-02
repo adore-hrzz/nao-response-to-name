@@ -113,8 +113,8 @@ struct Logger::Impl {
         // Open output file with timestamp
         boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
         std::stringstream filename;
-        filename << "/home/nao/naoqi/modules/" << now.date().year() << "_" << static_cast<int>(now.date().month())
-                 << "_" << now.date().day() << "_" <<  now.time_of_day().hours() << now.time_of_day().minutes() << "_log.txt";
+        filename << "/home/nao/naoqi/modules/logs/" << now.date().year() << "_" << static_cast<int>(now.date().month())
+                 << "_" << now.date().day() << "_" <<  now.time_of_day().hours() << now.time_of_day().minutes() << "_ResponseToName.txt";
         outputFileLock.lock();
         outputFile.open(filename.str().c_str(), std::ios::out);
         outputFileLock.unlock();
@@ -130,7 +130,7 @@ struct Logger::Impl {
             memoryProxy->subscribeToEvent("ChildCalled", "Logger", "onChildCalled");
             memoryProxy->subscribeToEvent("EndSession", "Logger", "onStopLogger");
             memoryProxy->subscribeToEvent("KlasifikacijaGovoraEvent", "Logger", "onSoundClassified");
-            classificationProxy->callVoid("pocniKlasifikaciju");
+            classificationProxy->callVoid("pocniKlasifikaciju", 6000, 10, 3, 16000, AL::ALValue(3), 8192*2);
         }
         catch (const AL::ALError& e) {
             qiLogError("Logger") << "Error subscribing to events" << e.toString() << std::endl;
@@ -346,7 +346,7 @@ void Logger::onChildCalled(const std::string &key, const AL::ALValue &value, con
     // Increase iteration number
     impl->iteration++;
     // Log that the Interface module has ended the call
-    impl->log("CE", (int)value);
+    impl->log("CE", (int)impl->iteration);
     // Robot has finished making sounds, restart the sound classification module
     impl->classificationProxy->callVoid("pocniKlasifikaciju");
     // Subscribe back to the same event
@@ -358,9 +358,11 @@ void Logger::onSoundClassified(const std::string &key, const AL::ALValue &value,
     AL::ALCriticalSection section(impl->fCallbackMutex);
     // Unsubscription
     impl->memoryProxy->unsubscribeToEvent("KlasifikacijaGovoraEvent", "Logger");
+    //qiLogWarning("Logger") << "Sound detected, reading value" << std::endl;
     // Log that the sound classification module has detected sounds
-    // TODO: find out how to read the data from AL::ALValue
-    // impl->log("SC", value);
+    std::string klasa = (std::string)value[0];
+    if(klasa=="Neartikulirano") impl->log("SC", 0);
+    else if( klasa=="Artikulirano") impl->log("SC", 1);
     // Subscribe back to the same event
     impl->memoryProxy->subscribeToEvent("KlasifikacijaGovoraEvent", "Logger", "onSoundClassified");
 }
