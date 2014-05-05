@@ -66,6 +66,7 @@ struct ResponseToNameLogger::Impl {
     int iteration;
     int faceCount;
     int childCount;
+    bool end;
 
     /**
       * Struct constructor, initializes module instance and callback mutex
@@ -123,6 +124,7 @@ struct ResponseToNameLogger::Impl {
         sessionStart = boost::get_system_time();
         iteration = 0;
         faceCount = 0;
+        end = false;
         childCount++;
         // Session is starting, subscribe to external events and start sound classification
         try {
@@ -190,7 +192,7 @@ struct ResponseToNameLogger::Impl {
                 long long sinceLastCall = timeDiff.total_milliseconds();
 
                 // Check if five seconds have past from last call or last face appearance
-                if( sinceLastFace >= 5000 && sinceLastCall >= 5000){
+                if( sinceLastFace >= 5000 && sinceLastCall >= 5000 && !end){
                     // robot will call the child, stop sound classification
                     classificationProxy->callVoid("prekiniKlasifikaciju");
                     // For first five iterations
@@ -219,6 +221,7 @@ struct ResponseToNameLogger::Impl {
                     else {
                         // Log "EndSession" event with value -1 meaning child did not respond
                         log("SE", -1);
+                        end = true;
                         // Raise EndSession event with value -1
                         memoryProxy->raiseEvent("EndSession", AL::ALValue(-1));
                     }
