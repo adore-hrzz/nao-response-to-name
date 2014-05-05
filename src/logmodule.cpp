@@ -132,7 +132,7 @@ struct ResponseToNameLogger::Impl {
             memoryProxy->subscribeToEvent("ChildCalled", "ResponseToNameLogger", "onChildCalled");
             memoryProxy->subscribeToEvent("EndSession", "ResponseToNameLogger", "onStopLogger");
             memoryProxy->subscribeToEvent("KlasifikacijaGovoraEvent", "ResponseToNameLogger", "onSoundClassified");
-            classificationProxy->callVoid("pocniKlasifikaciju", 6000, 10, 3, 16000, AL::ALValue(3), 8192*2);
+            classificationProxy->callVoid("pocniKlasifikaciju", 8000, 10, 3, 16000, AL::ALValue(3), 8192*2);
         }
         catch (const AL::ALError& e) {
             qiLogError("ResponseToNameLogger") << "Error subscribing to events" << e.toString() << std::endl;
@@ -347,8 +347,9 @@ void ResponseToNameLogger::onChildCalled(const std::string &key, const AL::ALVal
     impl->memoryProxy->unsubscribeToEvent("ChildCalled", "ResponseToNameLogger");
     // Update the time of the last call
     impl->lastCall = boost::get_system_time();
-    // Increase iteration number
+    // Increase iteration number, reset number of faces
     impl->iteration++;
+    impl->faceCount = 0;
     // Log that the Interface module has ended the call
     impl->log("CE", (int)impl->iteration);
     // Robot has finished making sounds, restart the sound classification module
