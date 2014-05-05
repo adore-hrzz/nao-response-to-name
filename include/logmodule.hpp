@@ -19,19 +19,19 @@ namespace AL
 /**
   * Class used to process FaceDetected events and schedule the calls
   */
-class Logger : public AL::ALModule
+class ResponseToNameLogger : public AL::ALModule
 {
   public:
 
     /**
       * Standard default constructor which will be called by the local NAOqi of the robot
       */
-    Logger(boost::shared_ptr<AL::ALBroker> broker, const std::string& name);
+    ResponseToNameLogger(boost::shared_ptr<AL::ALBroker> broker, const std::string& name);
 
     /**
       * Default destructor
       */
-    virtual ~Logger();
+    virtual ~ResponseToNameLogger();
 
     /**
       * Method overloading overloading ALModule::init().

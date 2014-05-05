@@ -33,7 +33,7 @@ extern "C"
     // from the parent executable
     AL::ALBrokerManager::setInstance(pBroker->fBrokerManager.lock());
     AL::ALBrokerManager::getInstance()->addBroker(pBroker);
-      AL::ALModule::createModule<Logger>( pBroker, "Logger" );
+      AL::ALModule::createModule<ResponseToNameLogger>( pBroker, "ResponseToNameLogger" );
 
     return 0;
   }
@@ -51,7 +51,7 @@ extern "C"
     TMainType sig;
     sig = &_createModule;
     // call main
-    ALTools::mainFunction("Logger", argc, argv, sig);
+    ALTools::mainFunction("ResponseToNameLogger", argc, argv, sig);
   }
 #endif
 

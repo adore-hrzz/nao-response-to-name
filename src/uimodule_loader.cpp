@@ -35,7 +35,7 @@ extern "C"
     // from the parent executable
     AL::ALBrokerManager::setInstance(pBroker->fBrokerManager.lock());
     AL::ALBrokerManager::getInstance()->addBroker(pBroker);
-      AL::ALModule::createModule<Interface>( pBroker, "Interface" );
+      AL::ALModule::createModule<ResponseToNameInterface>( pBroker, "ResponseToNameInterface" );
 
     return 0;
   }
