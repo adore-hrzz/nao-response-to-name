@@ -327,6 +327,7 @@ void ResponseToNameLogger::onStopLogger(const std::string &key, const AL::ALValu
         impl->memoryProxy->unsubscribeToEvent("FaceDetected", "ResponseToNameLogger");
         impl->memoryProxy->subscribeToEvent("StartSession", "ResponseToNameLogger", "onStartLogger");
         impl->classificationProxy->callVoid("prekiniKlasifikaciju");
+        impl->memoryProxy->unsubscribeToEvent("KlasifikacijaGovoraEvent", "ResponseToNameLogger");
     }
     catch (const AL::ALError& e) {
         qiLogError("ResponseToNameLogger") << "Error managing events" << e.toString() << std::endl;
