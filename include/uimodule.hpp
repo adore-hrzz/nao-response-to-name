@@ -40,6 +40,10 @@ class ResponseToNameInterface : public AL::ALModule
     virtual void init();
 
     /**
+      * Function used to start/enable the task
+      */
+    void startTask(const std::string &todo);
+    /**
       * This method will be called when FrontTactilTouched event is raised
       * When called, it raises StartSession event
       */
